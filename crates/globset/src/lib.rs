@@ -413,11 +413,14 @@ impl GlobSet {
                     required_exts.add(i, ext, p.regex().to_owned());
                 }
                 MatchStrategy::Regex => {
+                    #[cfg(feature = "log")]
                     log::debug!("glob converted to regex: {:?}", p);
                     regexes.add(i, p.regex().to_owned());
                 }
             }
         }
+
+        #[cfg(feature = "log")]
         log::debug!(
             "built glob set; {} literals, {} basenames, {} extensions, \
                 {} prefixes, {} suffixes, {} required extensions, {} regexes",
