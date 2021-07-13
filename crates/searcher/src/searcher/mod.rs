@@ -173,6 +173,8 @@ pub struct Config {
     encoding: Option<Encoding>,
     /// Whether to do automatic transcoding based on a BOM or not.
     bom_sniffing: bool,
+    /// Whether to stop searching when a non-matching line is found after a match.
+    stop_on_nonmatch: bool,
 }
 
 impl Default for Config {
@@ -190,6 +192,7 @@ impl Default for Config {
             multi_line: false,
             encoding: None,
             bom_sniffing: true,
+            stop_on_nonmatch: false,
         }
     }
 }
@@ -555,6 +558,18 @@ impl SearcherBuilder {
         self.config.bom_sniffing = yes;
         self
     }
+
+    /// Stop searching a file when a non-matching line is found after a matching one.
+    ///
+    /// This is useful for searching sorted files where it is expected that all
+    /// the matches will be on adjacent lines.
+    pub fn stop_on_nonmatch(
+        &mut self,
+        stop_on_nonmatch: bool,
+    ) -> &mut SearcherBuilder {
+        self.config.stop_on_nonmatch = stop_on_nonmatch;
+        self
+    }
 }
 
 /// A searcher executes searches over a haystack and writes results to a caller
@@ -732,7 +747,14 @@ impl Searcher {
             let mut line_buffer = self.line_buffer.borrow_mut();
             let rdr = LineBufferReader::new(decoder, &mut *line_buffer);
             log::trace!("generic reader: searching via roll buffer strategy");
-            ReadByLine::new(self, matcher, rdr, write_to).run()
+            ReadByLine::new(
+                self,
+                matcher,
+                rdr,
+                write_to,
+                self.stop_on_nonmatch(),
+            )
+            .run()
         }
     }
 
@@ -836,6 +858,13 @@ impl Searcher {
     #[inline]
     pub fn multi_line(&self) -> bool {
         self.config.multi_line
+    }
+
+    /// Returns true if and only if this searcher is configured to stop
+    /// when in finds a non-matching line after a matching one.
+    #[inline]
+    pub fn stop_on_nonmatch(&self) -> bool {
+        self.config.stop_on_nonmatch
     }
 
     /// Returns true if and only if this searcher will choose a multi-line

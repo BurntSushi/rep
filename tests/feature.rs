@@ -975,3 +975,10 @@ rgtest!(no_unicode, |dir: Dir, mut cmd: TestCommand| {
     dir.create("test", "δ");
     cmd.arg("-i").arg("--no-unicode").arg("Δ").assert_err();
 });
+
+// See: https://github.com/BurntSushi/ripgrep/issues/1790
+rgtest!(stop_on_nonmatch, |dir: Dir, mut cmd: TestCommand| {
+    dir.create("test", "line1\nline2\nline3\nline4\nline5");
+    cmd.args(&["--stop-on-nonmatch", "[235]"]);
+    eqnice!("test:line2\ntest:line3\n", cmd.stdout());
+});

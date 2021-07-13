@@ -14,6 +14,7 @@ pub struct ReadByLine<'s, M, R, S> {
     config: &'s Config,
     core: Core<'s, M, S>,
     rdr: LineBufferReader<'s, R>,
+    stop_on_nonmatch: bool,
 }
 
 impl<'s, M, R, S> ReadByLine<'s, M, R, S>
@@ -27,6 +28,7 @@ where
         matcher: M,
         read_from: LineBufferReader<'s, R>,
         write_to: S,
+        stop_on_nonmatch: bool,
     ) -> ReadByLine<'s, M, R, S> {
         debug_assert!(!searcher.multi_line_with_matcher(&matcher));
 
@@ -34,6 +36,7 @@ where
             config: &searcher.config,
             core: Core::new(searcher, matcher, write_to, false),
             rdr: read_from,
+            stop_on_nonmatch: stop_on_nonmatch,
         }
     }
 

@@ -644,6 +644,7 @@ pub fn all_args_and_flags() -> Vec<RGArg> {
     flag_vimgrep(&mut args);
     flag_with_filename(&mut args);
     flag_word_regexp(&mut args);
+    flag_stop_on_nonmatch(&mut args);
     args
 }
 
@@ -3105,5 +3106,25 @@ This overrides the --line-regexp flag.
         .help(SHORT)
         .long_help(LONG)
         .overrides("line-regexp");
+    args.push(arg);
+}
+
+fn flag_stop_on_nonmatch(args: &mut Vec<RGArg>) {
+    const SHORT: &str = "After a successful match in a file, stop reading the file once a non-matching line is found.";
+    const LONG: &str = long!(
+        "\
+Enabling this option will cause ripgrep to stop reading a file once it encounters
+a non-matching line after it has encountered a matching one. This is useful if it
+is expected that all matches in a given file will be on sequential lines, for example
+due to the files being sorted and the pattern being matched on being at the start
+of the line.
+
+This overrides the -U/--multiline flag.
+"
+    );
+    let arg = RGArg::switch("stop-on-nonmatch")
+        .help(SHORT)
+        .long_help(LONG)
+        .overrides("multiline");
     args.push(arg);
 }

@@ -840,7 +840,8 @@ impl ArgMatches {
             .before_context(ctx_before)
             .after_context(ctx_after)
             .passthru(self.is_present("passthru"))
-            .memory_map(self.mmap_choice(paths));
+            .memory_map(self.mmap_choice(paths))
+            .stop_on_nonmatch(self.is_present("stop-on-nonmatch"));
         match self.encoding()? {
             EncodingMode::Some(enc) => {
                 builder.encoding(Some(enc));

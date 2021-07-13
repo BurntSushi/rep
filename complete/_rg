@@ -319,6 +319,7 @@ _rg() {
     '(-q --quiet)'{-q,--quiet}'[suppress normal output]'
     '--regex-size-limit=[specify upper size limit of compiled regex]:regex size (bytes)'
     '*'{-u,--unrestricted}'[reduce level of "smart" searching]'
+    '--stop-on-nonmatch[stop on first non-matching line after a matching one]'
 
     + operand # Operands
     '(--files --type-list file regexp)1: :_guard "^-*" pattern'
